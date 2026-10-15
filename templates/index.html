@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRICBRAIN — All-Time Men's International Cricket Records</title>
+    
+    <!-- Google Fonts for Cricket Stadium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Three.js for 3D Cricket Ball, Stumps, Willow Bat, and Pitch Strip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Stadium Corner Floodlight Glows -->
+    <div class="floodlight-beam floodlight-top-left"></div>
+    <div class="floodlight-beam floodlight-top-right"></div>
+    <div class="floodlight-bottom-glow"></div>
+
+    <!-- Celebration Canvas & SIX! Explosion -->
+    <canvas id="confetti-canvas"></canvas>
+    <div class="six-celebration-overlay" id="six-celebration-overlay">
+        <div class="six-text-burst">SIX! 💥</div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="cric-header">
+        <a href="#hero" class="brand-wrapper">
+            <div class="brand-icon-ball"></div>
+            <div class="brand-title-group">
+                <h1>CRICBRAIN</h1>
+                <div class="sub-tagline">Agentic Cricket Intelligence</div>
+            </div>
+        </a>
+
+        <div class="header-actions">
+            <!-- Grounding Status Pill -->
+            <div class="grounding-status-pill {% if not has_key %}needs-key{% endif %}" id="grounding-status-pill">
+                <span class="pulse-dot"></span>
+                <span>{% if has_key %}Google Search Grounding: Live{% else %}Connect Gemini API Key{% endif %}</span>
+            </div>
+
+            <!-- Server Settings Button -->
+            <button class="btn-secondary-sm" id="btn-open-key-modal" title="Configure server-side Gemini API key">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===================================================================
+         HERO SECTION: 3D LANDING PAGE WITH SPINNING BALL & FLOATING GEAR
+         =================================================================== -->
+    <section class="hero-section" id="hero">
+        <!-- 3D Canvas Background Container (Three.js with CSS fallback) -->
+        <div id="canvas-3d-container"></div>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🔴</span>
+                <span>Live Grounded Cricket Records Engine</span>
+            </div>
+
+            <h1 class="hero-title">
+                <span class="title-accent">CRICBRAIN</span>
+            </h1>
+
+            <p class="hero-tagline">
+                The brain behind cricket's greatest numbers.
+            </p>
+
+            <p class="hero-description">
+                Explore all-time men's international cricket records across Tests, ODIs, and T20Is. Powered by real-time Google Search grounding via Gemini Agentic AI to check official ESPNcricinfo Statsguru and ACS tables live.
+            </p>
+
+            <div class="cta-button-group">
+                <a href="#workspace-section" class="btn-start-innings" id="btn-start-innings">
+                    <span>🏏 Start the Innings</span>
+                </a>
+                <button class="btn-secondary-innings" onclick="document.querySelector('.format-tab-btn[data-format=\'all\']').click(); document.getElementById('workspace-section').scrollIntoView({behavior:'smooth'});">
+                    <span>📊 Compare All Formats</span>
+                </button>
+            </div>
+
+            <!-- 3D Perspective Pitch Strip (moves with page scroll) -->
+            <div class="pitch-strip-container">
+                <div class="pitch-strip" id="pitch-strip-element">
+                    <div class="crease-line crease-bowling-left"></div>
+                    <div class="crease-line crease-popping-left"></div>
+                    <div class="pitch-label">22 YARDS OF GLORY</div>
+                    <div class="crease-line crease-popping-right"></div>
+                    <div class="crease-line crease-bowling-right"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================
+         ANIMATED TEASER COUNTERS SECTION
+         =================================================================== -->
+    <section class="teaser-section">
+        <div style="text-align: center;">
+            <div class="teaser-disclaimer">
+                <span>⚡</span>
+                <span>Example teaser — live records fetched via real-time search below</span>
+            </div>
+        </div>
+
+        <div class="teaser-grid">
+            <div class="teaser-card">
+                <div class="card-shine"></div>
+                <div class="card-icon">👑</div>
+                <div class="counter-number" data-target="15921">0</div>
+                <div class="counter-label">Most Test Runs</div>
+                <div class="counter-sub">Sachin Tendulkar (India)</div>
+            </div>
+
+            <div class="teaser-card">
+                <div class="card-shine"></div>
+                <div class="card-icon">🎯</div>
+                <div class="counter-number" data-target="800">0</div>
+                <div class="counter-label">Most Test Wickets</div>
+                <div class="counter-sub">Muttiah Muralitharan (Sri Lanka)</div>
+            </div>
+
+            <div class="teaser-card">
+                <div class="card-shine"></div>
+                <div class="card-icon">🛡️</div>
+                <div class="counter-number" data-target="99.94" data-is-float="true">0.00</div>
+                <div class="counter-label">Highest Test Average</div>
+                <div class="counter-sub">Sir Donald Bradman (Australia)</div>
+            </div>
+
+            <div class="teaser-card">
+                <div class="card-shine"></div>
+                <div class="card-icon">⚡</div>
+                <div class="counter-number" data-target="18426">0</div>
+                <div class="counter-label">Most ODI Runs</div>
+                <div class="counter-sub">Sachin Tendulkar (India)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================
+         MAIN WORKSPACE: FORMAT TABS & LIVE RESULTS
+         =================================================================== -->
+    <section class="workspace-section" id="workspace-section">
+        
+        <!-- Format Selection Tabs -->
+        <div class="format-tabs-bar">
+            <button class="format-tab-btn active" data-format="test">
+                <span>🔴</span>
+                <span>Test</span>
+            </button>
+            <button class="format-tab-btn" data-format="odi">
+                <span>⚪</span>
+                <span>ODI</span>
+            </button>
+            <button class="format-tab-btn" data-format="t20i">
+                <span>⚡</span>
+                <span>T20I</span>
+            </button>
+            <button class="format-tab-btn btn-all-formats" data-format="all">
+                <span>🌐</span>
+                <span>All Formats</span>
+            </button>
+        </div>
+
+        <!-- Mandatory Explanation: What "Top" Means -->
+        <div class="top-meaning-banner">
+            <div class="meaning-text">
+                <span>ℹ️</span>
+                <span><strong class="meaning-strong">"Top" means career runs or wickets</strong>, not opinion and not ICC ratings.</span>
+            </div>
+            <div class="meta-tags">
+                <span class="meta-tag-item" id="date-checked-label">Checked on {{ today }}</span>
+                <span class="meta-tag-item">Numbers can lag the latest match.</span>
+                <span class="meta-tag-item" id="cutoff-rule-notice" style="color:#fbbf24;">Minimum 20 innings cutoff</span>
+            </div>
+        </div>
+
+        <!-- Action Row (Header + Download + Print + Live Refresh) -->
+        <div class="results-action-row">
+            <div class="format-title-group">
+                <h2 id="current-format-title">
+                    <span>🏏</span> Test Cricket
+                </h2>
+                <p id="format-description">
+                    Men's Test Cricket (All-time career records across all Test-playing nations)
+                </p>
+            </div>
+
+            <div class="results-buttons">
+                <button class="btn-action btn-refresh" id="btn-refresh-stats" title="Re-query live cricket tables">
+                    <span>🔄</span>
+                    <span>Live Re-check</span>
+                </button>
+                <button class="btn-action btn-download-txt" id="btn-download-txt" title="Download official ASCII report">
+                    <span>📥</span>
+                    <span>Download Report (.txt)</span>
+                </button>
+                <button class="btn-action" id="btn-print-pdf" title="Print clean dossier or save as PDF">
+                    <span>🖨️</span>
+                    <span>Save as PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- LOADING STATE WITH BOWLING ANIMATION & 5-STEP AGENT TRAIL -->
+        <div class="loading-agent-container" id="loading-agent-container">
+            <!-- Animated Bowling Delivery Track -->
+            <div class="bowling-pitch-track">
+                <div class="bowling-ball-runner"></div>
+                <div class="bowling-stumps-target">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <h3 class="agent-trail-title">CRICBRAIN Agent at Work</h3>
+            <p class="agent-trail-sub">Grounding query with live Google Search & official cricket tables</p>
+
+            <!-- 5-Step Live Agent Trail -->
+            <div class="agent-trail-steps" id="agent-trail-steps">
+                <!-- Dynamically updated by app.js -->
+            </div>
+        </div>
+
+        <!-- RESULTS CONTENT CONTAINER -->
+        <div id="results-content-container">
+            
+            <!-- SINGLE FORMAT VIEW (TEST, ODI, or T20I) -->
+            <div id="single-format-view">
+                
+                <!-- 1. Highlight Card for Highest Batting Average with Glowing Ring -->
+                <div class="highlight-average-wrapper" id="highest-avg-card-container">
+                    <!-- Populated dynamically via app.js -->
+                </div>
+
+                <!-- 2. Dual Column 3D Podium Grid: Batsmen vs Bowlers -->
+                <div class="records-grid-container">
+                    
+                    <!-- Batsmen Column (Top 5 by Runs) -->
+                    <div class="category-column">
+                        <div class="category-column-title">
+                            <span>🏏 Top 5 Batsmen</span>
+                            <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:normal;">Ranked by Career Runs</span>
+                        </div>
+                        <div class="podium-cards-list" id="batsmen-podium-list">
+                            <!-- Populated dynamically via app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Bowlers Column (Top 5 by Wickets) -->
+                    <div class="category-column">
+                        <div class="category-column-title">
+                            <span>🎯 Top 5 Bowlers</span>
+                            <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:normal;">Ranked by Career Wickets</span>
+                        </div>
+                        <div class="podium-cards-list" id="bowlers-podium-list">
+                            <!-- Populated dynamically via app.js -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ALL FORMATS VIEW (SIDE-BY-SIDE 3 COLUMNS) -->
+            <div id="all-formats-view" style="display: none;">
+                <!-- Populated dynamically via app.js -->
+            </div>
+
+        </div>
+
+        <!-- ===============================================================
+             "ASK CRICBRAIN" FOLLOW-UP ASSISTANT BOX
+             =============================================================== -->
+        <div class="ask-cricbrain-section">
+            <div class="ask-header">
+                <span style="font-size: 1.5rem;">🧠</span>
+                <h3>Ask CRICBRAIN</h3>
+                <span class="ask-badge">Grounded Follow-Up</span>
+            </div>
+            <p>
+                Have a specific question about Men's International Cricket records? Ask anything in simple English:
+            </p>
+
+            <!-- Quick Suggestion Chips -->
+            <div class="ask-quick-chips">
+                <button class="chip-btn" data-query="Who is 6th in Tests career runs?">🏏 Who is 6th in Test runs?</button>
+                <button class="chip-btn" data-query="Who has the highest career strike rate in T20I?">⚡ Highest T20I strike rate?</button>
+                <button class="chip-btn" data-query="Who has the most ODI centuries in career?">💯 Most ODI centuries?</button>
+                <button class="chip-btn" data-query="Who has the most 5-wicket hauls in Test cricket?">🎯 Most 5-wicket hauls in Tests?</button>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="ask-input-row">
+                <input type="text" id="ask-cricbrain-input" placeholder="e.g. Who is 6th in Tests? Most wickets in ODIs? Highest individual score?">
+                <button class="btn-ask-submit" id="btn-ask-submit">
+                    <span>Search</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <!-- Answer Box -->
+            <div class="ask-answer-box" id="ask-answer-box">
+                <div class="ask-answer-main" id="ask-answer-text"></div>
+                <div class="ask-answer-meta" id="ask-answer-meta"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===================================================================
+         SECURE SERVER-SIDE API KEY CONFIGURATION MODAL
+         =================================================================== -->
+    <div class="modal-overlay" id="modal-api-key">
+        <div class="modal-card">
+            <button class="modal-close-btn" id="btn-close-key-modal">&times;</button>
+            <h3>Connect Gemini API Key</h3>
+            <p>
+                To enable live Google Search Grounding for all cricket record searches and follow-up questions, enter your Google Gemini API key.
+            </p>
+            <p style="color: #6ee7b7; font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                🔒 <strong>Server Security:</strong> Your key is stored strictly on your local server in the <code>.env</code> file. It is never transmitted to or visible in client browser code.
+            </p>
+
+            <input type="password" id="input-api-key" placeholder="Enter your Gemini API key here..." autocomplete="off">
+
+            <div class="modal-actions">
+                <button class="btn-secondary-sm" id="btn-cancel-key-modal">Cancel</button>
+                <button class="btn-start-innings" id="btn-save-key" style="font-size:0.88rem; padding:0.6rem 1.4rem;">
+                    Save & Activate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         FOOTER (ALWAYS VISIBLE AT BOTTOM: "Built by Suyog Shinde")
+         =================================================================== -->
+    <footer class="cric-footer">
+        <div class="footer-content">
+            <div class="footer-author-tag">
+                <span>Built by</span>
+                <span class="author-highlight">Suyog Shinde</span>
+            </div>
+            <div class="footer-disclaimer-text">
+                CRICBRAIN • Powered by Gemini Agentic AI & Google Search Grounding • Official Men's International Cricket Records
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Logic Scripts -->
+    <script src="{{ url_for('static', filename='js/ball3d.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
