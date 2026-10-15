@@ -172,5 +172,33 @@ class TestCricbrain(unittest.TestCase):
         self.assertIn("not ICC ratings", html)
 
 
+    def test_9_gemini_model_config(self):
+        """Verify model defaults to gemini-3.8-flash and respects GEMINI_MODEL env var."""
+        import os
+        from app import get_gemini_model
+
+        # Check default model
+        orig = os.environ.get("GEMINI_MODEL")
+        try:
+            if "GEMINI_MODEL" in os.environ:
+                del os.environ["GEMINI_MODEL"]
+            self.assertEqual(get_gemini_model(), "gemini-3.8-flash")
+
+            # Check env override
+            os.environ["GEMINI_MODEL"] = "gemini-3.8-flash"
+            self.assertEqual(get_gemini_model(), "gemini-3.8-flash")
+
+            # Check config endpoint reports activeModel
+            cfg_resp = self.client.get("/api/config")
+            cfg_data = cfg_resp.get_json()
+            self.assertEqual(cfg_data.get("activeModel"), "gemini-3.8-flash")
+        finally:
+            if orig is not None:
+                os.environ["GEMINI_MODEL"] = orig
+            elif "GEMINI_MODEL" in os.environ:
+                del os.environ["GEMINI_MODEL"]
+
+
 if __name__ == "__main__":
     unittest.main()
+
